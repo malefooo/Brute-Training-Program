@@ -1,20 +1,16 @@
 # Brute-Training-Program
 for my best friend 
 
-- [ ] 重构已有的java web项目
-  - 熟练rust语法
-  - 熟练rust中怎么引用包,怎么构建项目 截止日期: 2022年12月30日
-  - 熟练异步和使用异步
-  - 通过考核
-- [ ] 自建rust cli操作以太坊合约项目 截止日期: 2023年1月30日
-  - 了解以太坊
-  - 了解合约
-  - 熟悉区块链
-  - 熟悉cli
-  - 通过考核
-- [ ] rust cli程序扩建,支持其他eth链 截止日期: 2023年2月30日
-  - 项目重构
-  - 必须使用抽象
-  - 加入数据库
-  - 加入rpc查询
-  - 通过考核
+- [ ] 完成webrtc的项目 (预计截止日期:2022年12月30日)
+  - [ ] 项目本地运行
+  - [ ] 信令服务器运行云服务端,offer和answer分别运行在两台机器上,且能通信
+  - [ ] 代码规范化
+  - [ ] github工作流的熟练使用
+  - 资料:
+    - [webrtc精读](https://zhuanlan.zhihu.com/p/216043831)
+    - [已有项目参考](https://github.com/malefooo/webrtc-demo)
+    - [webrtc rust仓库](https://github.com/webrtc-rs/webrtc)
+    - [交互式连接建立（ICE）](https://zhuanlan.zhihu.com/p/25087606)
+    - [协议介绍](https://developer.mozilla.org/zh-CN/docs/Web/API/WebRTC_API/Protocols)
+    
+
