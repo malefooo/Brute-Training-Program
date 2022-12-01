@@ -1,3 +1,5 @@
+mod runner;
+
 #[cfg(test)]
 mod tests {
     #[test]
