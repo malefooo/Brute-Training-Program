@@ -1,20 +1,13 @@
 # Brute-Training-Program
 for my best friend 
 
-- [ ] 重构已有的java web项目
-  - 熟练rust语法
-  - 熟练rust中怎么引用包,怎么构建项目 截止日期: 2022年12月30日
-  - 熟练异步和使用异步
-  - 通过考核
-- [ ] 自建rust cli操作以太坊合约项目 截止日期: 2023年1月30日
-  - 了解以太坊
-  - 了解合约
-  - 熟悉区块链
-  - 熟悉cli
-  - 通过考核
-- [ ] rust cli程序扩建,支持其他eth链 截止日期: 2023年2月30日
-  - 项目重构
-  - 必须使用抽象
-  - 加入数据库
-  - 加入rpc查询
-  - 通过考核
+- [ ] 重构权限管理+邮件发送系统
+  - [ ] 使用并且熟练tokio
+  - [ ] swagger展示api
+  - [ ] 用json形式展示权限
+  - [ ] 明白异步和多线程
+  - 资料:
+    - [cargo包搜索](https://crates.io/)
+    - [官方文档](https://doc.rust-lang.org/std/index.html?)
+    - [tokio](https://github.com/tokio-rs/tokio)
+
