@@ -13,9 +13,6 @@ mod thread_pool;
 // }
 
 
-/**
- * 提供一个异步运行时
- */
 // impl<'a> Service<'a> {
 //     pub fn new(&self, size: u32, name: &'a str) -> Self {
 //         let mut vec = Vec::new();
