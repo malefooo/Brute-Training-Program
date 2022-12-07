@@ -103,3 +103,65 @@ pub enum TransformMsg<T> {
     TERMINAL,
 }
 
+
+pub mod util {
+    use std::sync::{Arc, Mutex};
+    use std::sync::mpsc::{channel, Receiver, Sender};
+    use crate::runner::thread_pool::{Msg, TransformMsg};
+
+    pub fn generate_channel<T>() -> (Sender<T>, Arc<Mutex<Receiver<T>>>) {
+        let (sen, rec) = channel::<T>();
+        let arc = Arc::new(Mutex::new(rec));
+        (sen, arc)
+    }
+}
+
+#[cfg(test)]
+mod test_thread_pool {
+    use std::sync::{Arc, Mutex};
+    use std::sync::mpsc::{channel, Sender};
+    use std::thread;
+    use std::time::Duration;
+    use util::generate_channel;
+    use crate::runner::thread_pool::{Msg, ThreadPool, TransformMsg, util, Worker};
+    use crate::runner::thread_pool::TransformMsg::MSG;
+
+    /**
+     * 初始化并启动单个工作线程
+     */
+    #[test]
+    fn test_init_a_worker_thread() {
+        let (sender, receiver) = generate_channel::<TransformMsg<Msg>>();
+        let worker = Worker::new("test-worker", receiver);
+        //发送任务
+        let (check_sender, check_receiver) = generate_channel::<TransformMsg<String>>();
+        sender.send(MSG(Box::new(move || {
+            //回发消息，证明执行了
+            check_sender.send(MSG(String::from("hello"))).unwrap();
+        }))).unwrap();
+
+        thread::sleep(Duration::from_secs(2));
+        if let MSG(msg) =
+            check_receiver.lock().unwrap()
+                .recv().unwrap() {
+            //证明收到了消息，说明工作线程执行了
+            assert_eq!("hello", msg);
+        };
+    }
+
+    /**
+     *简单测试下是否能启动线程池
+     */
+    #[test]
+    fn test_star_thread_pool() {
+        let mut test_pool = ThreadPool::new("test", 1);
+        assert_eq!("test", test_pool.name);
+        assert_eq!(1, test_pool.size);
+        test_pool.star();
+        assert_eq!(1, test_pool.pool.len());
+        test_pool.shutdown();
+        assert_eq!(0, test_pool.pool.len());
+    }
+}
+
+
