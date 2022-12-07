@@ -1,9 +1,11 @@
 use std::borrow::Borrow;
 use std::fmt::format;
 use std::sync::{Arc, mpsc, Mutex};
-use std::sync::mpsc::{channel, Receiver};
+use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread;
 use std::thread::JoinHandle;
+
+use crate::runner::thread_pool::TransformMsg::TERMINAL;
 
 /**
  * 自定义一个线程池
@@ -45,7 +47,15 @@ impl ThreadPool {
      * 简单一点，清空队列即可
      */
     pub fn shutdown(&mut self) {
-        self.pool.clear()
+        for _ in &self.pool {
+            match &self.sender {
+                None => break,
+                Some(s) => {
+                    s.send(TERMINAL).expect(&format!("send terminal message error for thread pool {}", self.name));
+                }
+            }
+        }
+        self.pool.clear();
     }
     /**
      * 提供一个api往线程池丢任务
@@ -74,15 +84,20 @@ type ArcReceiver = Arc<Mutex<Receiver<TransformMsg<Msg>>>>;
 type Msg = Box<dyn FnOnce() + Send + 'static>;
 
 impl Worker {
-    pub fn new(work_id: &str, receiver: ArcReceiver) -> Self {
+    pub fn new(work_id: &str, locked_receiver: ArcReceiver) -> Self {
         //定义一个task任务,用于实时从receiver获取任务,获取不到则阻塞
         let handle = thread::spawn(
             move || {
                 loop {
-                    let msg = receiver.lock().expect("worker get lock error")
-                        .recv().expect("receive task message error");
+                    let hold_msg: TransformMsg<Msg>;
+                    {
+                        //持有了receiver要及时释放，否则会锁住其它线程拿不到这个receiver
+                        hold_msg = locked_receiver
+                            .lock().expect("worker get lock error")
+                            .recv().expect("receive task message error");
+                    }
                     //运行任务
-                    match msg {
+                    match hold_msg {
                         TransformMsg::MSG(task) => task(),
                         TransformMsg::TERMINAL => break
                     }
@@ -107,6 +122,7 @@ pub enum TransformMsg<T> {
 pub mod util {
     use std::sync::{Arc, Mutex};
     use std::sync::mpsc::{channel, Receiver, Sender};
+
     use crate::runner::thread_pool::{Msg, TransformMsg};
 
     pub fn generate_channel<T>() -> (Sender<T>, Arc<Mutex<Receiver<T>>>) {
@@ -118,11 +134,14 @@ pub mod util {
 
 #[cfg(test)]
 mod test_thread_pool {
+    use std::borrow::Borrow;
     use std::sync::{Arc, Mutex};
     use std::sync::mpsc::{channel, Sender};
     use std::thread;
     use std::time::Duration;
+
     use util::generate_channel;
+
     use crate::runner::thread_pool::{Msg, ThreadPool, TransformMsg, util, Worker};
     use crate::runner::thread_pool::TransformMsg::MSG;
 
@@ -161,6 +180,43 @@ mod test_thread_pool {
         assert_eq!(1, test_pool.pool.len());
         test_pool.shutdown();
         assert_eq!(0, test_pool.pool.len());
+    }
+
+    /**
+     * 测试多任务是否能异步并行执
+     * 创建100个子线程
+     * 给每个子线程一个sender，让他们给main线程发送一个消息,并sleep2秒，
+     * main线程会收到100次消息，并执行不超过4秒（考虑误差）
+     */
+    #[test]
+    fn test_multi_thread_run_in_same_time() {
+        let thread_count = 100;
+        let mut ten_pool = ThreadPool::new("test", thread_count);
+        ten_pool.star();
+        let (sender, receiver) = channel();
+        let arc = Arc::new(Mutex::new(sender));
+        for _ in 0..thread_count {
+            let arc = Arc::clone(&arc);
+            ten_pool.execute(Box::new(move || {
+                let sender;
+                {
+                    sender = arc.lock().unwrap()
+                        .send(String::from("cool")).unwrap();
+                }
+                thread::sleep(Duration::from_secs(2));
+            }));
+        }
+        //当前线程等4秒
+        thread::sleep(Duration::from_secs(4));
+        let mut count = 0;
+
+        for _ in 0..thread_count {
+            let msg = receiver.recv().unwrap();
+            count += 1;
+            assert_eq!("cool", msg);
+        }
+        ten_pool.shutdown();
+        assert_eq!(thread_count, count);
     }
 }
 
