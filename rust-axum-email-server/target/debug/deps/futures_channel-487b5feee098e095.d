@@ -1,0 +1,9 @@
+d:\learnPlace\java\Brute-Training-Program\Brute-Training-Program\vhr\vhr\mailserver\rust-axum-email-server\target\debug\deps\futures_channel-487b5feee098e095.rmeta: C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.25\src\lib.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.25\src\lock.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.25\src\mpsc\mod.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.25\src\mpsc\queue.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.25\src\oneshot.rs
+
+d:\learnPlace\java\Brute-Training-Program\Brute-Training-Program\vhr\vhr\mailserver\rust-axum-email-server\target\debug\deps\futures_channel-487b5feee098e095.d: C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.25\src\lib.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.25\src\lock.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.25\src\mpsc\mod.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.25\src\mpsc\queue.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.25\src\oneshot.rs
+
+C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.25\src\lib.rs:
+C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.25\src\lock.rs:
+C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.25\src\mpsc\mod.rs:
+C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.25\src\mpsc\queue.rs:
+C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.25\src\oneshot.rs:
