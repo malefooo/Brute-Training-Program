@@ -1,11 +1,9 @@
-use std::borrow::{Borrow, BorrowMut};
+use std::borrow::Borrow;
 use std::fmt::format;
-use std::ops::{Deref, DerefMut};
 use std::sync::{Arc, mpsc, Mutex};
 use std::sync::mpsc::{channel, Receiver};
 use std::thread;
-use std::thread::Thread;
-use tokio::task::JoinHandle;
+use std::thread::JoinHandle;
 
 /**
  * 自定义一个线程池
@@ -15,14 +13,14 @@ struct ThreadPool {
     size: i32,
     name: String,
     pool: Vec<Worker>,
-    sender: Option<mpsc::Sender<Box<dyn FnOnce()+Send+'static>>>,
+    sender: Option<mpsc::Sender<TransformMsg<Msg>>>,
 }
 
 impl ThreadPool {
-    pub fn new(name: String, size: i32) -> Self {
+    pub fn new(name: &str, size: i32) -> Self {
         ThreadPool {
             size,
-            name,
+            name: String::from(name),
             pool: vec![],
             sender: None,
         }
@@ -39,16 +37,24 @@ impl ThreadPool {
             let clone_arc = Arc::clone(&arc);
             //给每一个 工作线程娶一个名字
             let work_name = format!("thead-{}-{}", &self.name, i);
-            self.pool.push(Worker::new(work_name, clone_arc));
+            self.pool.push(Worker::new(&work_name, clone_arc));
         }
+    }
+    /**
+     * 提供一个api关闭池子
+     * 简单一点，清空队列即可
+     */
+    pub fn shutdown(&mut self) {
+        self.pool.clear()
     }
     /**
      * 提供一个api往线程池丢任务
      */
-    pub fn excute(&self, task: Box<dyn FnOnce() + Send>) {
+    pub fn execute(&self, task: Box<dyn FnOnce() + Send>) {
         //用sender去发送任务
-        self.sender.expect(&format!("there is no sender for thread pool {}", self.name))
-            .send(task).expect(&format!("send message error for thread pool {}", self.name));
+        if let Some(sender) = &self.sender {
+            sender.send(TransformMsg::MSG(task)).expect(&format!("send message error for thread pool {}", self.name));
+        }
     }
 }
 
@@ -61,45 +67,39 @@ struct Worker {
      *线程名称
      */
     work_id: String,
-    handler: JoinHandle<()>
+    handler: JoinHandle<()>,
 }
 
-type ArcReceiver = Arc<Mutex<Receiver<Box<dyn FnOnce()+Send+'static>>>>;
+type ArcReceiver = Arc<Mutex<Receiver<TransformMsg<Msg>>>>;
+type Msg = Box<dyn FnOnce() + Send + 'static>;
 
 impl Worker {
-    pub fn new(work_id: String, receiver: ArcReceiver) -> Self {
+    pub fn new(work_id: &str, receiver: ArcReceiver) -> Self {
         //定义一个task任务,用于实时从receiver获取任务,获取不到则阻塞
         let handle = thread::spawn(
             move || {
                 loop {
-                    let task = receiver.lock().expect("worker get lock error")
+                    let msg = receiver.lock().expect("worker get lock error")
                         .recv().expect("receive task message error");
                     //运行任务
-                    task()
+                    match msg {
+                        TransformMsg::MSG(task) => task(),
+                        TransformMsg::TERMINAL => break
+                    }
                 }
+                print!("work stop");
             }
         );
 
         Worker {
-            work_id,
-            handler
+            work_id: String::from(work_id),
+            handler: handle,
         }
     }
-
-
-    /**
-     * 启动worK任务线程,等待任务到来并执行
-     */
-    pub fn star_worker(&self) {}
-
-    /**
-     *传递一个任务来让工作线程执行
-     */
-    pub fn execute(task: fn()) {}
-    /**
-     * 停止工作线程
-     */
-    pub fn stop_worker() {}
 }
 
+pub enum TransformMsg<T> {
+    MSG(T),
+    TERMINAL,
+}
 

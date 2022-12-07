@@ -1,3 +1,5 @@
+extern crate core;
+
 mod runner;
 
 #[cfg(test)]

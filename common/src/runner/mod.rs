@@ -1,11 +1,8 @@
-use std::borrow::{Borrow, BorrowMut};
-use std::mem::swap;
-use std::sync::{Arc, LockResult, mpsc, Mutex};
-use std::sync::mpsc::Sender;
-use std::thread;
+
 
 mod msg;
 mod thread_pool;
+mod thread_pool_test;
 
 // struct Service<'a> {
 //     pool: Vec<Worker<'a>>,
