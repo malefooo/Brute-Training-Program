@@ -15,7 +15,7 @@ struct ThreadPool {
     size: i32,
     name: String,
     pool: Vec<Worker>,
-    sender: Option<mpsc::Sender<TransformMsg<Msg>>>,
+    sender: Option<mpsc::Sender<TransformMsg<JobMsg>>>,
 }
 
 impl ThreadPool {
@@ -57,14 +57,36 @@ impl ThreadPool {
         }
         self.pool.clear();
     }
+
     /**
-     * 提供一个api往线程池丢任务
+     * 不需要future
      */
     pub fn execute(&self, task: Box<dyn FnOnce() + Send>) {
         //用sender去发送任务
         if let Some(sender) = &self.sender {
             sender.send(TransformMsg::MSG(task)).expect(&format!("send message error for thread pool {}", self.name));
         }
+    }
+    /**
+     * 提供一个api往线程池丢任务
+     * 需要future
+     */
+    pub fn execute_future<T: Send + 'static>(&self, task: Box<dyn FnOnce() -> T + Send>) -> Future<T> {
+        //发送任务的时候，包装一下任务，用于获取返回的Future
+        let (sd, rec) = channel();
+        let mutex_sd = Mutex::new(sd);
+        let pack_task = Box::new(move || {
+            let result = task();
+            //将结果发回
+            mutex_sd.lock().expect("call back error from get lock")
+                .send(result).expect("call back error from send msg");
+        });
+        //用sender去发送任务
+        if let Some(sender) = &self.sender {
+            sender.send(TransformMsg::MSG(pack_task)).expect(&format!("send message error for thread pool {}", self.name));
+        }
+        //将rec返回，用来获取异步结果
+        Future::new(rec)
     }
 }
 
@@ -80,16 +102,16 @@ struct Worker {
     handler: JoinHandle<()>,
 }
 
-type ArcReceiver = Arc<Mutex<Receiver<TransformMsg<Msg>>>>;
-type Msg = Box<dyn FnOnce() + Send + 'static>;
+type ArcReceiver = Arc<Mutex<Receiver<TransformMsg<JobMsg>>>>;
+type JobMsg = Box<dyn FnOnce() + Send + 'static>;
 
 impl Worker {
-    pub fn new(work_id: &str, locked_receiver: ArcReceiver) -> Self {
+    fn new(work_id: &str, locked_receiver: ArcReceiver) -> Self {
         //定义一个task任务,用于实时从receiver获取任务,获取不到则阻塞
         let handle = thread::spawn(
             move || {
                 loop {
-                    let hold_msg: TransformMsg<Msg>;
+                    let hold_msg: TransformMsg<JobMsg>;
                     {
                         //持有了receiver要及时释放，否则会锁住其它线程拿不到这个receiver
                         hold_msg = locked_receiver
@@ -113,17 +135,36 @@ impl Worker {
     }
 }
 
-pub enum TransformMsg<T> {
+/**
+ * 异步线程的返回值future
+ */
+pub struct Future<T> {
+    receiver: Receiver<T>,
+}
+
+
+impl<T> Future<T> {
+    fn new(receiver: Receiver<T>) -> Self {
+        Self { receiver }
+    }
+
+    pub fn get_result(&self) -> T {
+        return self.receiver.recv().expect("get future result error");
+    }
+}
+
+
+enum TransformMsg<T> {
     MSG(T),
     TERMINAL,
 }
 
 
-pub mod util {
+mod util {
     use std::sync::{Arc, Mutex};
     use std::sync::mpsc::{channel, Receiver, Sender};
 
-    use crate::runner::thread_pool::{Msg, TransformMsg};
+    use crate::runner::thread_pool::{JobMsg, TransformMsg};
 
     pub fn generate_channel<T>() -> (Sender<T>, Arc<Mutex<Receiver<T>>>) {
         let (sen, rec) = channel::<T>();
@@ -142,7 +183,7 @@ mod test_thread_pool {
 
     use util::generate_channel;
 
-    use crate::runner::thread_pool::{Msg, ThreadPool, TransformMsg, util, Worker};
+    use crate::runner::thread_pool::{JobMsg, ThreadPool, TransformMsg, util, Worker};
     use crate::runner::thread_pool::TransformMsg::MSG;
 
     /**
@@ -150,7 +191,7 @@ mod test_thread_pool {
      */
     #[test]
     fn test_init_a_worker_thread() {
-        let (sender, receiver) = generate_channel::<TransformMsg<Msg>>();
+        let (sender, receiver) = generate_channel::<TransformMsg<JobMsg>>();
         let worker = Worker::new("test-worker", receiver);
         //发送任务
         let (check_sender, check_receiver) = generate_channel::<TransformMsg<String>>();
@@ -209,7 +250,6 @@ mod test_thread_pool {
         //当前线程等4秒
         thread::sleep(Duration::from_secs(4));
         let mut count = 0;
-
         for _ in 0..thread_count {
             let msg = receiver.recv().unwrap();
             count += 1;
@@ -217,6 +257,31 @@ mod test_thread_pool {
         }
         ten_pool.shutdown();
         assert_eq!(thread_count, count);
+    }
+
+    /**
+     * 验证异步任务，返回一个future
+     * 主线成创建一个异步线程，获取异步计算的结果
+     */
+    #[test]
+    fn test_thread_pool_get_future() {
+        let size = 50;
+        let mut pool = ThreadPool::new("test", size);
+        pool.star();
+        let mut future_vec = Vec::new();
+        //丢五个计算任务,任务1+1=2,将2返回
+        for _ in 0..size {
+            let future = pool.execute_future(Box::new(|| {
+                //这个任务处理需要2秒
+                thread::sleep(Duration::from_secs(2));
+                1 + 1
+            }));
+            future_vec.push(future);
+        }
+        //验证结果都是2
+        for future in future_vec {
+            assert_eq!(2, future.get_result());
+        }
     }
 }
 
