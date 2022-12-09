@@ -1,4 +1,3 @@
-use std::any::Any;
 use crate::net::http::Method::{GET, POST};
 
 /**
