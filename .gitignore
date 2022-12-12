@@ -1,0 +1,67 @@
+### System ignore ###
+.DS_Store
+Thumbs.db
+
+### Editor Files ###
+*~
+*.swp
+
+### Spring Tool Suite ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+*rebel*.xml
+*generator*.xml
+*.fleet
+
+*.bin
+
+### Eclipse ###
+.classpath
+.project
+.settings
+.metadata
+
+### NetBeans ###
+**/nbproject/private/
+**/nbproject/Makefile-*.mk
+**/nbproject/Package-*.bash
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+.svn/
+.vscode
+*.java~
+*.properties~
+*.xml~
+
+### Gradle Files ###
+.gradle
+
+### Build Output ###
+/target
+*/target
+*/*/target
+/log
+*/log
+/build
+*/build
+/out/
+var
+logs
+
+### Package ###
+*.war
+*.zip
+*.tar
+*.tar.gz
