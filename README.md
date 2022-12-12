@@ -10,4 +10,6 @@ for my best friend
     - [cargo包搜索](https://crates.io/)
     - [官方文档](https://doc.rust-lang.org/std/index.html?)
     - [tokio](https://github.com/tokio-rs/tokio)
-
+  - 任务:
+    - [ ] 什么是同步绅士异步
+    - [ ] &str和String的区别
