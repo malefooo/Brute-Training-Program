@@ -1,1 +1,0 @@
-D:\learnPlace\java\Brute-Training-Program\Brute-Training-Program\vhr\vhr\mailserver\rust-axum-email-server\target\debug\rust-axum-email-server.exe: D:\learnPlace\java\Brute-Training-Program\Brute-Training-Program\vhr\vhr\mailserver\rust-axum-email-server\src\main.rs

@@ -1,9 +1,0 @@
-d:\learnPlace\java\Brute-Training-Program\Brute-Training-Program\vhr\vhr\mailserver\rust-axum-email-server\target\debug\deps\serde_path_to_error-7ea34bf64c42693a.rmeta: C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\serde_path_to_error-0.1.8\src\lib.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\serde_path_to_error-0.1.8\src\de.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\serde_path_to_error-0.1.8\src\path.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\serde_path_to_error-0.1.8\src\ser.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\serde_path_to_error-0.1.8\src\wrap.rs
-
-d:\learnPlace\java\Brute-Training-Program\Brute-Training-Program\vhr\vhr\mailserver\rust-axum-email-server\target\debug\deps\serde_path_to_error-7ea34bf64c42693a.d: C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\serde_path_to_error-0.1.8\src\lib.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\serde_path_to_error-0.1.8\src\de.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\serde_path_to_error-0.1.8\src\path.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\serde_path_to_error-0.1.8\src\ser.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\serde_path_to_error-0.1.8\src\wrap.rs
-
-C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\serde_path_to_error-0.1.8\src\lib.rs:
-C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\serde_path_to_error-0.1.8\src\de.rs:
-C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\serde_path_to_error-0.1.8\src\path.rs:
-C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\serde_path_to_error-0.1.8\src\ser.rs:
-C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\serde_path_to_error-0.1.8\src\wrap.rs:
